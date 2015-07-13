@@ -4,6 +4,7 @@
 #include "Rivet/Projections/FastJets.hh"
 #include "fastjet/PseudoJet.hh"
 #include "fastjet/contrib/EnergyCorrelator.hh"
+#include "fastjet/tools/Filter.hh"
 
 namespace Rivet {
 
