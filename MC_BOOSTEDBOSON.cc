@@ -6,21 +6,23 @@
 #include "fastjet/contrib/EnergyCorrelator.hh"
 #include "fastjet/tools/Filter.hh"
 
+using namespace fastjet;
+
 namespace Rivet {
 
     double D2(const Jet& jet) {
 
-        const fastjet::PseudoJet& pj = jet.pseudojet();
+        const PseudoJet& pj = jet.pseudojet();
 
         // beta always = 1.0
         double ECF1 = 
-            fastjet::contrib::EnergyCorrelator(1, 1.0).result(pj);
+            contrib::EnergyCorrelator(1, 1.0).result(pj);
 
         double ECF2 = 
-            fastjet::contrib::EnergyCorrelator(2, 1.0).result(pj);
+            contrib::EnergyCorrelator(2, 1.0).result(pj);
 
         double ECF3 = 
-            fastjet::contrib::EnergyCorrelator(3, 1.0).result(pj);
+            contrib::EnergyCorrelator(3, 1.0).result(pj);
 
         if (ECF1 == 0 || ECF2 == 0 || ECF3 == 0)
             return -999;
@@ -66,6 +68,8 @@ namespace Rivet {
                 jetFS.useInvisibles(true);
                 addProjection(jetFS, "jetFS");
 
+                trimmer = Filter(JetDefinition(cambridge_algorithm, 0.3), SelectorNHardest(3));
+
                 return;
             }
 
@@ -79,9 +83,10 @@ namespace Rivet {
 
 
                 foreach(const Jet& jet, jets) {
-                    hPt->fill(jet.pT(), weight);
-                    hM->fill(jet.mass(), weight);
-                    hD2->fill(D2(jet), weight);
+                    const Jet trimmedJet = trimmer(jet);
+                    hPt->fill(trimmedJet.pT(), weight);
+                    hM->fill(trimmedJet.mass(), weight);
+                    hD2->fill(D2(trimmedJet), weight);
                 }
 
                 return;
@@ -100,6 +105,7 @@ namespace Rivet {
 
         private:
 
+            Filter trimmer;
             Histo1DPtr hD2;
             Histo1DPtr hM;
             Histo1DPtr hPt;
