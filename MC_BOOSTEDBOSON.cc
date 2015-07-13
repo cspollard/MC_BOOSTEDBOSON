@@ -68,7 +68,7 @@ namespace Rivet {
                 jetFS.useInvisibles(true);
                 addProjection(jetFS, "jetFS");
 
-                trimmer = Filter(JetDefinition(cambridge_algorithm, 0.3), SelectorNHardest(3));
+                trimmer = Filter(JetDefinition(kt_algorithm, 0.2), SelectorPtFractionMin(0.05));
 
                 return;
             }
