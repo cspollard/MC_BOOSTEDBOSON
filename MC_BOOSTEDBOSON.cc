@@ -37,6 +37,7 @@ namespace Rivet {
 
 
 
+
     class MC_BOOSTEDBOSON : public Analysis {
         public:
 
@@ -44,23 +45,60 @@ namespace Rivet {
                 : Analysis("MC_BOOSTEDBOSON")
             {    }
 
+            string toJSON(const Jet& jet, double weight) {
+                const Jet& tjet = trimmer(jet);
+
+                ostringstream os;
+                os << "{" << endl <<
+                    "\t\"weight\" : " << weight << "," << endl <<
+
+                    "\t\"momentum\" : [" <<
+                    jet.px() << ", " <<
+                    jet.py() << ", " <<
+                    jet.pz() << ", " <<
+                    jet.energy() << "]," <<
+                    endl <<
+
+                    "\t\"D_2\" : " << D2(jet) << "," << endl <<
+
+                    "\t\"trimmed momentum\" : [" <<
+                    tjet.px() << ", " <<
+                    tjet.py() << ", " <<
+                    tjet.pz() << ", " <<
+                    tjet.energy() << "]," <<
+                    endl <<
+
+                    "\t\"trimmed D_2\" : " << D2(tjet) << endl <<
+                    "}";
+
+                return os.str();
+            }
 
             void init() {
 
+                /*
                 hPt = bookHisto1D("hPt", 50, 0, 1000*GeV,
-                            "anti-$k_t$ $R=1.0$ jets",
-                            "$p_T$ / GeV",
-                            "$\\frac{d\\sigma}{dp_T} / \\frac{\\rm pb}{\\rm GeV}$");
+                        "anti-$k_t$ $R=1.0$ jets",
+                        "$p_T$ / GeV",
+                        "$\\frac{d\\sigma}{dp_T} / \\frac{\\rm pb}{\\rm GeV}$");
+
+                hPtVsTrimmedPt = bookHisto2D("hPtVsTrimmedPt",
+                        50, 0, 1000*GeV,
+                        50, 0, 1000*GeV,
+                        "anti-$k_t$ $R=1.0$ jets",
+                        "untrimmed $p_T$ / GeV", "trimmed $p_T$ / GeV",
+                        "$\\frac{d\\sigma}{dp_T} / \\frac{\\rm pb}{\\rm GeV}$");
 
                 hM = bookHisto1D("hM", 50, 0, 500*GeV,
-                            "anti-$k_t$ $R=1.0$ jets",
-                            "mass / GeV",
-                            "$\\frac{d\\sigma}{d{\\rm mass}} / \\frac{\\rm pb}{\\rm GeV}$");
+                        "anti-$k_t$ $R=1.0$ jets",
+                        "mass / GeV",
+                        "$\\frac{d\\sigma}{d{\\rm mass}} / \\frac{\\rm pb}{\\rm GeV}$");
 
                 hD2 = bookHisto1D("hD2", 40, 0, 4,
                         "anti-$k_t$ $R=1.0$ jets",
                         "$D_2$",
                         "$\\frac{d\\sigma}{dD_2} / {\\rm pb}$");
+                */
 
                 FastJets jetFS(
                         FinalState(Cuts::pT > 0*GeV && Cuts::abseta < 2.0),
@@ -82,12 +120,8 @@ namespace Rivet {
                             Cuts::pT > 250*GeV && Cuts::abseta < 2.0);
 
 
-                foreach(const Jet& jet, jets) {
-                    const Jet trimmedJet = trimmer(jet);
-                    hPt->fill(trimmedJet.pT(), weight);
-                    hM->fill(trimmedJet.mass(), weight);
-                    hD2->fill(D2(trimmedJet), weight);
-                }
+                foreach(const Jet& jet, jets)
+                    cout << toJSON(jet, weight) << endl;
 
                 return;
             }
@@ -95,9 +129,11 @@ namespace Rivet {
 
             void finalize() {
                 double norm = crossSection()/sumOfWeights();
+                /*
                 scale(hPt, norm);
                 scale(hM, norm);
                 scale(hD2, norm);
+                */
 
                 return;
             }
@@ -106,9 +142,32 @@ namespace Rivet {
         private:
 
             Filter trimmer;
+
+            /*
             Histo1DPtr hD2;
+
             Histo1DPtr hM;
+            Histo1DPtr hTrimmedM;
+
+            Profile1DPtr hMeanMVsTrimmedM;
+            Profile1DPtr hMeanTrimmedMVsM;
+            Profile1DPtr hMeanMVsPt;
+            Profile1DPtr hMeanTrimmedMVsPt;
+            Profile1DPtr hMeanTrimmedMVsTrimmedPt;
+
+            Histo2DPtr hMVsTrimmedM;
+            Histo2DPtr hTrimmedMVsM;
+            Histo2DPtr hMVsTrimmedPt;
+            Histo2DPtr hMVsPt;
+            Histo2DPtr hTrimmedMVsPt;
+            Histo2DPtr hTrimmedMVsTrimmedPt;
+
             Histo1DPtr hPt;
+            Histo1DPtr hTrimmedPt;
+            Histo1DPtr hMeanPtVsTrimmedPt;
+            Histo1DPtr hMeanTrimmedPtPt;
+            Histo1DPtr hPtVsTrimmedPt;
+            */
     };
 
     // The hook for the plugin system
